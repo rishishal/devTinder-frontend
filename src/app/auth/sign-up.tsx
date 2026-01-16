@@ -1,4 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
 import {
   Card,
   CardContent,
@@ -7,13 +11,48 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormMessage,
+  FormControl,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Link } from "@tanstack/react-router";
-import { useId } from "react";
+import { useApi } from "@/api";
+
+const formSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export const SignUp = () => {
-  const id = useId();
+  // Get signup hook from useApi
+  const { useSignup } = useApi();
+  const signupMutation = useSignup();
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    signupMutation.mutate({
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      password: values.password,
+    });
+  };
   return (
     <div className="w-full h-screen flex justify-center items-center">
       <Card className="w-full max-w-sm">
@@ -24,49 +63,95 @@ export const SignUp = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-5">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor={`${id}-name`}>Full name</Label>
-                <Input
-                  id={`${id}-name`}
-                  placeholder="Name"
-                  type="text"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`${id}-email`}>Email</Label>
-                <Input
-                  id={`${id}-email`}
-                  placeholder="hi@yourcompany.com"
-                  type="email"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`${id}-password`}>Password</Label>
-                <Input
-                  id={`${id}-password`}
-                  placeholder="Enter your password"
-                  type="password"
-                  required
-                />
-              </div>
+          {signupMutation.error && (
+            <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
+              {(signupMutation.error as any)?.response?.data?.message ||
+                "Signup failed"}
             </div>
-          </form>
+          )}
+          <Form {...form}>
+            <form id="sign-up-form" onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="John" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="your@email.com"
+                          type="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </form>
+          </Form>
         </CardContent>
         <CardFooter className="flex-col gap-2">
-          <Button type="button" className="w-full">
-            Sign up
+          <Button
+            type="submit"
+            form="sign-up-form"
+            className="w-full"
+            disabled={signupMutation.isPending}
+          >
+            {signupMutation.isPending ? "Creating account..." : "Sign up"}
           </Button>
           <p className="text-xs">
             Already have an account?{" "}
-            <Link
-              to="/authentication/sign-in"
-              className="underline hover:text-blue-400"
-            >
-              Sign In
+            <Link to="/authentication/sign-in">
+              <span className="underline hover:text-blue-400">Sign In</span>
             </Link>
           </p>
         </CardFooter>
