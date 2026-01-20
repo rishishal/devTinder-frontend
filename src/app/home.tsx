@@ -1,3 +1,13 @@
+import { useAuthStore } from "@/stores/auth-store";
+
 export const HomePage = () => {
-  return <div className="text-2xl font-bold">Welcome to DevTinder!</div>;
+  const { auth } = useAuthStore();
+
+  console.log(auth.user);
+
+  return (
+    <div className="text-2xl font-bold">
+      Welcome to DevTinder, {auth.user?.firstName}!
+    </div>
+  );
 };

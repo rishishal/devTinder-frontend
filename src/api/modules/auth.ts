@@ -11,6 +11,19 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
+// Axios interceptor - reset auth on 401 (simplified, no refresh token)
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid - reset auth and redirect to login
+      useAuthStore.getState().auth.reset();
+      window.location.href = "/authentication/sign-in";
+    }
+    return Promise.reject(error);
+  },
+);
+
 // Types for API
 interface LoginData {
   email: string;
@@ -41,20 +54,37 @@ const authApi = {
     }),
 
   logout: () => apiClient.post("/auth/logout"),
+
+  getCurrentUser: () => apiClient.get("/profile/me"),
 };
 
 // Factory function to create auth hooks (like your ERP pattern)
 export function createAuthHooks() {
-  const { setUser, reset } = useAuthStore();
+  const { auth } = useAuthStore();
 
   return {
+    // FETCH CURRENT USER (called on app init if token exists)
+    useFetchUser: () => {
+      return useMutation({
+        mutationFn: () => authApi.getCurrentUser(),
+        onSuccess: (response) => {
+          auth.setUser(response.data);
+        },
+        onError: () => {
+          auth.reset();
+        },
+      });
+    },
+
     // LOGIN
     useLogin: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: LoginData) => authApi.login(data),
         onSuccess: (response) => {
-          setUser(response.data.data);
+          const { data: userData, accessToken } = response.data;
+          auth.setUser(userData);
+          auth.setAccessToken(accessToken);
           navigate({ to: "/" });
         },
       });
@@ -66,7 +96,9 @@ export function createAuthHooks() {
       return useMutation({
         mutationFn: (data: SignupData) => authApi.signup(data),
         onSuccess: (response) => {
-          setUser(response.data.data);
+          const { data: userData, accessToken } = response.data;
+          auth.setUser(userData);
+          auth.setAccessToken(accessToken);
           navigate({ to: "/" });
         },
       });
@@ -78,7 +110,7 @@ export function createAuthHooks() {
       return useMutation({
         mutationFn: () => authApi.logout(),
         onSuccess: () => {
-          reset();
+          auth.reset();
           navigate({ to: "/authentication/sign-in" });
         },
       });

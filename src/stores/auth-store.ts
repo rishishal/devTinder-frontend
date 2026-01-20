@@ -1,4 +1,7 @@
 import { create } from "zustand";
+import { getCookie, setCookie, removeCookie } from "@/lib/cookies";
+
+const TOKEN_COOKIE = "token"; // Same as backend cookie name
 
 // User type (simplified for learning)
 export interface User {
@@ -9,31 +12,57 @@ export interface User {
 }
 
 export interface AuthState {
-  // State
-  user: User | null;
-  isAuthenticated: boolean;
-
-  // Actions
-  setUser: (user: User | null) => void;
-  reset: () => void;
+  auth: {
+    user: User | null;
+    setUser: (user: User | null) => void;
+    accessToken: string;
+    setAccessToken: (accessToken: string) => void;
+    resetAccessToken: () => void;
+    reset: () => void;
+  };
 }
 
-export const useAuthStore = create<AuthState>()((set) => ({
-  // Initial state
-  user: null,
-  isAuthenticated: false,
+export const useAuthStore = create<AuthState>()((set) => {
+  // Read cookies on initialization
+  const cookieState = getCookie(TOKEN_COOKIE);
+  const initToken = cookieState ?? "";
 
-  // Set user after login/signup
-  setUser: (user) =>
-    set({
-      user,
-      isAuthenticated: !!user,
-    }),
-
-  // Reset on logout
-  reset: () =>
-    set({
+  return {
+    auth: {
       user: null,
-      isAuthenticated: false,
-    }),
-}));
+      setUser: (user) =>
+        set((state) => ({ ...state, auth: { ...state.auth, user } })),
+
+      accessToken: initToken,
+      setAccessToken: (accessToken) =>
+        set((state) => {
+          if (accessToken)
+            setCookie(TOKEN_COOKIE, accessToken, 24 * 60 * 60); // 24 hours
+          else removeCookie(TOKEN_COOKIE);
+          return {
+            ...state,
+            auth: { ...state.auth, accessToken: accessToken || "" },
+          };
+        }),
+
+      resetAccessToken: () =>
+        set((state) => {
+          removeCookie(TOKEN_COOKIE);
+          return { ...state, auth: { ...state.auth, accessToken: "" } };
+        }),
+
+      reset: () =>
+        set((state) => {
+          removeCookie(TOKEN_COOKIE);
+          return {
+            ...state,
+            auth: {
+              ...state.auth,
+              user: null,
+              accessToken: "",
+            },
+          };
+        }),
+    },
+  };
+});

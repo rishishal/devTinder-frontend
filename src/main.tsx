@@ -5,11 +5,19 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 
 import { routeTree } from "./routeTree.gen";
-
-const router = createRouter({ routeTree });
+import { useAuthStore } from "./stores/auth-store";
 
 // Create QueryClient instance
 const queryClient = new QueryClient();
+
+// Create router with context (like ERP pattern)
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+    authGet: () => useAuthStore.getState().auth,
+  },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -22,5 +30,5 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>
-  </StrictMode>
+  </StrictMode>,
 );
