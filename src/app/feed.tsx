@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/auth-store";
 
-export const HomePage = () => {
+export const FeedPage = () => {
   const { auth } = useAuthStore();
 
   console.log(auth.user);

@@ -6,22 +6,36 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
+/**
+ * API Client Configuration
+ * - withCredentials: true → Automatically sends/receives httpOnly cookies
+ * - No Bearer token needed — backend reads from req.cookies.token
+ */
 export const apiClient = axios.create({
   baseURL,
-  withCredentials: true,
+  withCredentials: true, // This sends cookies with every request
 });
 
-// Axios interceptor - reset auth on 401 (simplified, no refresh token)
+/**
+ * Response Interceptor
+ * - Handles 401 errors globally (session expired, invalid token)
+ * - Resets auth state and redirects to login
+ */
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
+  (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - reset auth and redirect to login
-      useAuthStore.getState().auth.reset();
-      window.location.href = "/authentication/sign-in";
+      // Session expired or invalid — reset auth and redirect
+      const { auth } = useAuthStore.getState();
+      auth.reset();
+
+      // Only redirect if not already on auth pages
+      if (!window.location.pathname.includes("/authentication")) {
+        window.location.href = "/authentication/sign-in";
+      }
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 // Types for API
@@ -37,7 +51,7 @@ interface SignupData {
   password: string;
 }
 
-// Raw API calls (used internally by hooks)
+// Raw API calls
 const authApi = {
   login: (data: LoginData) =>
     apiClient.post("/auth/login", {
@@ -58,12 +72,19 @@ const authApi = {
   getCurrentUser: () => apiClient.get("/profile/me"),
 };
 
-// Factory function to create auth hooks (like your ERP pattern)
+/**
+ * Auth Hooks Factory
+ * Creates React Query hooks for all auth operations
+ */
 export function createAuthHooks() {
   const { auth } = useAuthStore();
 
   return {
-    // FETCH CURRENT USER (called on app init if token exists)
+    /**
+     * Fetch Current User
+     * Called on app initialization to restore session
+     * Backend validates the httpOnly cookie and returns user data
+     */
     useFetchUser: () => {
       return useMutation({
         mutationFn: () => authApi.getCurrentUser(),
@@ -71,47 +92,61 @@ export function createAuthHooks() {
           auth.setUser(response.data);
         },
         onError: () => {
+          // Cookie is invalid/expired — clear local state
           auth.reset();
         },
       });
     },
 
-    // LOGIN
+    /**
+     * Login
+     * POST /auth/login → Backend sets httpOnly cookie
+     * We only store user info for UI purposes
+     */
     useLogin: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: LoginData) => authApi.login(data),
         onSuccess: (response) => {
-          const { data: userData, accessToken } = response.data;
-          auth.setUser(userData);
-          auth.setAccessToken(accessToken);
+          // Backend sets httpOnly cookie automatically
+          // We only store user data for UI display
+          auth.setUser(response.data.data);
           navigate({ to: "/" });
         },
       });
     },
 
-    // SIGNUP
+    /**
+     * Signup
+     * POST /auth/signup → Backend sets httpOnly cookie
+     */
     useSignup: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: SignupData) => authApi.signup(data),
         onSuccess: (response) => {
-          const { data: userData, accessToken } = response.data;
-          auth.setUser(userData);
-          auth.setAccessToken(accessToken);
+          auth.setUser(response.data.data);
           navigate({ to: "/" });
         },
       });
     },
 
-    // LOGOUT
+    /**
+     * Logout
+     * POST /auth/logout → Backend clears httpOnly cookie
+     */
     useLogout: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: () => authApi.logout(),
         onSuccess: () => {
           auth.reset();
-          navigate({ to: "/authentication/sign-in" });
+          navigate({ to: "/sign-in" });
+        },
+        onError: () => {
+          // Even if logout fails, clear local state
+          auth.reset();
+          navigate({ to: "/sign-in" });
         },
       });
     },

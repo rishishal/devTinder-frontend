@@ -9,26 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ForbiddenRouteImport } from './routes/forbidden'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as authSignInIndexRouteImport } from './routes/(auth)/sign-in/index'
 import { Route as authSignInSignUpIndexRouteImport } from './routes/(auth)/sign-in/sign-up/index'
 
-const ForbiddenRoute = ForbiddenRouteImport.update({
-  id: '/forbidden',
-  path: '/forbidden',
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
-  id: '/_authenticated/',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
-  id: '/_authenticated/profile',
+  id: '/profile',
   path: '/profile',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const authSignInIndexRoute = authSignInIndexRouteImport.update({
   id: '/(auth)/sign-in/',
@@ -42,63 +47,72 @@ const authSignInSignUpIndexRoute = authSignInSignUpIndexRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/forbidden': typeof ForbiddenRoute
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/': typeof AuthenticatedIndexRoute
   '/sign-in/': typeof authSignInIndexRoute
   '/sign-in/sign-up/': typeof authSignInSignUpIndexRoute
 }
 export interface FileRoutesByTo {
-  '/forbidden': typeof ForbiddenRoute
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/': typeof AuthenticatedIndexRoute
   '/sign-in': typeof authSignInIndexRoute
   '/sign-in/sign-up': typeof authSignInSignUpIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/forbidden': typeof ForbiddenRoute
+  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/about': typeof AboutRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/(auth)/sign-in/': typeof authSignInIndexRoute
   '/(auth)/sign-in/sign-up/': typeof authSignInSignUpIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/forbidden' | '/profile' | '/' | '/sign-in/' | '/sign-in/sign-up/'
+  fullPaths: '/' | '/about' | '/profile' | '/sign-in/' | '/sign-in/sign-up/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/forbidden' | '/profile' | '/' | '/sign-in' | '/sign-in/sign-up'
+  to: '/' | '/about' | '/profile' | '/sign-in' | '/sign-in/sign-up'
   id:
     | '__root__'
-    | '/forbidden'
+    | '/'
+    | '/_authenticated'
+    | '/about'
     | '/_authenticated/profile'
-    | '/_authenticated/'
     | '/(auth)/sign-in/'
     | '/(auth)/sign-in/sign-up/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  ForbiddenRoute: typeof ForbiddenRoute
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AboutRoute: typeof AboutRoute
   authSignInIndexRoute: typeof authSignInIndexRoute
   authSignInSignUpIndexRoute: typeof authSignInSignUpIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/forbidden': {
-      id: '/forbidden'
-      path: '/forbidden'
-      fullPath: '/forbidden'
-      preLoaderRoute: typeof ForbiddenRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/profile': {
@@ -106,7 +120,7 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/(auth)/sign-in/': {
       id: '/(auth)/sign-in/'
@@ -125,10 +139,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  ForbiddenRoute: ForbiddenRoute,
+interface AuthenticatedRouteChildren {
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AboutRoute: AboutRoute,
   authSignInIndexRoute: authSignInIndexRoute,
   authSignInSignUpIndexRoute: authSignInSignUpIndexRoute,
 }
