@@ -7,10 +7,10 @@ import "./index.css";
 import { routeTree } from "./routeTree.gen";
 import { useAuthStore } from "./stores/auth-store";
 
-// Create QueryClient instance
+
 const queryClient = new QueryClient();
 
-// Create router with context (like ERP pattern)
+// Create router with context that includes the queryClient
 const router = createRouter({
   routeTree,
   context: {

@@ -20,9 +20,9 @@ export interface AuthState {
   auth: {
     user: User | null;
     isAuthenticated: boolean;
-    setUser: (user: User | null) => void;
-    reset: () => void;
   };
+  setUser: (user: User | null) => void;
+  reset: () => void;
 }
 
 /**
@@ -47,27 +47,24 @@ export const useAuthStore = create<AuthState>()(
       auth: {
         user: null,
         isAuthenticated: false,
-
-        setUser: (user) =>
-          set((state) => ({
-            ...state,
-            auth: {
-              ...state.auth,
-              user,
-              isAuthenticated: !!user,
-            },
-          })),
-
-        reset: () =>
-          set((state) => ({
-            ...state,
-            auth: {
-              ...state.auth,
-              user: null,
-              isAuthenticated: false,
-            },
-          })),
       },
+
+      setUser: (user) =>
+        set((state) => ({
+          auth: {
+            ...state.auth,
+            user,
+            isAuthenticated: !!user,
+          },
+        })),
+
+      reset: () =>
+        set(() => ({
+          auth: {
+            user: null,
+            isAuthenticated: false,
+          },
+        })),
     }),
     {
       name: "auth-storage", // localStorage key

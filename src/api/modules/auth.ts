@@ -26,8 +26,8 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Session expired or invalid — reset auth and redirect
-      const { auth } = useAuthStore.getState();
-      auth.reset();
+      const { reset } = useAuthStore.getState();
+      reset();
 
       // Only redirect if not already on auth pages
       if (!window.location.pathname.includes("/authentication")) {
@@ -77,7 +77,7 @@ const authApi = {
  * Creates React Query hooks for all auth operations
  */
 export function createAuthHooks() {
-  const { auth } = useAuthStore();
+  const { auth, setUser, reset } = useAuthStore();
 
   return {
     /**
@@ -89,11 +89,11 @@ export function createAuthHooks() {
       return useMutation({
         mutationFn: () => authApi.getCurrentUser(),
         onSuccess: (response) => {
-          auth.setUser(response.data);
+          setUser(response.data);
         },
         onError: () => {
           // Cookie is invalid/expired — clear local state
-          auth.reset();
+          reset();
         },
       });
     },
@@ -110,7 +110,7 @@ export function createAuthHooks() {
         onSuccess: (response) => {
           // Backend sets httpOnly cookie automatically
           // We only store user data for UI display
-          auth.setUser(response.data.data);
+          setUser(response.data.data);
           navigate({ to: "/" });
         },
       });
@@ -125,7 +125,7 @@ export function createAuthHooks() {
       return useMutation({
         mutationFn: (data: SignupData) => authApi.signup(data),
         onSuccess: (response) => {
-          auth.setUser(response.data.data);
+          setUser(response.data.data);
           navigate({ to: "/" });
         },
       });
@@ -140,12 +140,12 @@ export function createAuthHooks() {
       return useMutation({
         mutationFn: () => authApi.logout(),
         onSuccess: () => {
-          auth.reset();
+          reset();
           navigate({ to: "/sign-in" });
         },
         onError: () => {
           // Even if logout fails, clear local state
-          auth.reset();
+          reset();
           navigate({ to: "/sign-in" });
         },
       });

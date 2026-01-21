@@ -1,3 +1,4 @@
+import SwipeCards from "@/components/swip-card";
 import { useAuthStore } from "@/stores/auth-store";
 
 export const FeedPage = () => {
@@ -8,6 +9,8 @@ export const FeedPage = () => {
   return (
     <div className="text-2xl font-bold">
       Welcome to DevTinder, {auth.user?.firstName}!
+
+      <SwipeCards />
     </div>
   );
 };
