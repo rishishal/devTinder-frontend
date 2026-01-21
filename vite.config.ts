@@ -1,12 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
-
+import svgr from 'vite-plugin-svgr'
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), TanStackRouterVite(), tailwindcss()],
+  plugins: [tanstackRouter({
+      target: 'react',
+      autoCodeSplitting: true,
+    }), react(), tailwindcss(), svgr()],
+    
+    optimizeDeps: {
+    include: ['axios'],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
