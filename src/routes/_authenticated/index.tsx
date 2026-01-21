@@ -1,7 +1,6 @@
-import { FeedPage } from '@/app/feed'
-import { createFileRoute } from '@tanstack/react-router'
+import { FeedPage } from "@/app/feed";
+import { createFileRoute } from "@tanstack/react-router";
 
-
-export const Route = createFileRoute('/_authenticated/')({
+export const Route = createFileRoute("/_authenticated/")({
   component: FeedPage,
-})
+});

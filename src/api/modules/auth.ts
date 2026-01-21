@@ -6,39 +6,26 @@ import { useAuthStore } from "@/stores/auth-store";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
 
-/**
- * API Client Configuration
- * - withCredentials: true → Automatically sends/receives httpOnly cookies
- * - No Bearer token needed — backend reads from req.cookies.token
- */
 export const apiClient = axios.create({
   baseURL,
-  withCredentials: true, // This sends cookies with every request
+  withCredentials: true,
 });
-
-/**
- * Response Interceptor
- * - Handles 401 errors globally (session expired, invalid token)
- * - Resets auth state and redirects to login
- */
+// Response Interceptor to handle 401 Unauthorized globally
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Session expired or invalid — reset auth and redirect
       const { reset } = useAuthStore.getState();
       reset();
 
-      // Only redirect if not already on auth pages
-      if (!window.location.pathname.includes("/authentication")) {
-        window.location.href = "/authentication/sign-in";
+      if (!window.location.pathname.includes("/sign-in")) {
+        window.location.href = "/sign-in";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
-// Types for API
 interface LoginData {
   email: string;
   password: string;
@@ -72,19 +59,10 @@ const authApi = {
   getCurrentUser: () => apiClient.get("/profile/me"),
 };
 
-/**
- * Auth Hooks Factory
- * Creates React Query hooks for all auth operations
- */
 export function createAuthHooks() {
-  const { auth, setUser, reset } = useAuthStore();
+  const { setUser, reset } = useAuthStore();
 
   return {
-    /**
-     * Fetch Current User
-     * Called on app initialization to restore session
-     * Backend validates the httpOnly cookie and returns user data
-     */
     useFetchUser: () => {
       return useMutation({
         mutationFn: () => authApi.getCurrentUser(),
@@ -92,49 +70,33 @@ export function createAuthHooks() {
           setUser(response.data);
         },
         onError: () => {
-          // Cookie is invalid/expired — clear local state
           reset();
         },
       });
     },
 
-    /**
-     * Login
-     * POST /auth/login → Backend sets httpOnly cookie
-     * We only store user info for UI purposes
-     */
     useLogin: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: LoginData) => authApi.login(data),
         onSuccess: (response) => {
-          // Backend sets httpOnly cookie automatically
-          // We only store user data for UI display
           setUser(response.data.data);
           navigate({ to: "/" });
         },
       });
     },
 
-    /**
-     * Signup
-     * POST /auth/signup → Backend sets httpOnly cookie
-     */
     useSignup: () => {
       const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: SignupData) => authApi.signup(data),
         onSuccess: (response) => {
           setUser(response.data.data);
-          navigate({ to: "/" });
+          navigate({ to: "/sign-in" });
         },
       });
     },
 
-    /**
-     * Logout
-     * POST /auth/logout → Backend clears httpOnly cookie
-     */
     useLogout: () => {
       const navigate = useNavigate();
       return useMutation({
@@ -144,8 +106,6 @@ export function createAuthHooks() {
           navigate({ to: "/sign-in" });
         },
         onError: () => {
-          // Even if logout fails, clear local state
-          reset();
           navigate({ to: "/sign-in" });
         },
       });
