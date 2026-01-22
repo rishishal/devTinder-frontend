@@ -31,8 +31,8 @@ export function ProfileAvatar() {
           <Avatar>
             <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
             <AvatarFallback>
-              {user?.firstName.charAt(0)}
-              {user?.lastName.charAt(0)}
+              {user?.firstName?.[0] ?? ""}
+              {user?.lastName?.[0] ?? ""}
             </AvatarFallback>
           </Avatar>
         </Button>

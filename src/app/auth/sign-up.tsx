@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useApi } from "@/api";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import type { AxiosError } from "axios";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -76,8 +77,8 @@ export const SignUp = () => {
         <CardContent>
           {signupMutation.error && (
             <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
-              {(signupMutation.error as any)?.response?.data?.message ||
-                "Signup failed"}
+              {(signupMutation.error as AxiosError<{ message?: string }>)
+                ?.response?.data?.message || "Signup failed"}
             </div>
           )}
           <Form {...form}>

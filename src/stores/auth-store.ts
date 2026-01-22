@@ -1,20 +1,10 @@
+import type { User } from "@/types/user";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 /**
  * User type matching backend response
  */
-export interface User {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  emailId: string;
-  bio: string;
-  age: number;
-  skills: string[];
-  createdAt: string;
-  updatedAt: string;
-}
 
 export interface AuthState {
   auth: {
@@ -74,6 +64,6 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: state.auth.isAuthenticated,
         },
       }),
-    }
-  )
+    },
+  ),
 );

@@ -1,10 +1,10 @@
-import { createAuthHooks } from "./modules/auth";
+import { useAuthHooks } from "./modules/auth";
+import { useProfileHooks } from "./modules/profile";
 
 export function useApi() {
   return {
-    ...createAuthHooks(),
-    // Add more modules here as you build:
-    // ...createProfileHooks(),
+    ...useAuthHooks(),
+    ...useProfileHooks(),
     // ...createConnectionHooks(),
   };
 }

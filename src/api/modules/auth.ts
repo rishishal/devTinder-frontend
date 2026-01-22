@@ -61,7 +61,7 @@ const authApi = {
   getCurrentUser: () => apiClient.get("/profile/me"),
 };
 
-export function createAuthHooks() {
+export function useAuthHooks() {
   const { setUser, reset } = useAuthStore();
 
   return {

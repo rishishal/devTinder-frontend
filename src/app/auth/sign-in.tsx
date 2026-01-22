@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AxiosError } from "axios";
 
 import {
   Card,
@@ -68,8 +69,7 @@ export const SignIn = () => {
         <CardContent>
           {loginMutation.error && (
             <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 rounded border border-red-200">
-              {(loginMutation.error as any)?.response?.data?.message ||
-                "Login failed"}
+              {(loginMutation.error as AxiosError<{ message?: string }>)?.response?.data?.message || "Login failed"}
             </div>
           )}
           <Form {...form}>
