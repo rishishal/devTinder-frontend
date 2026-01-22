@@ -9,7 +9,6 @@ export const FeedPage = () => {
   return (
     <div className="text-2xl font-bold">
       Welcome to DevTinder, {auth.user?.firstName}!
-
       <SwipeCards />
     </div>
   );
