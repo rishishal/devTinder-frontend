@@ -36,6 +36,7 @@ interface SignupData {
   lastName: string;
   email: string;
   password: string;
+  gender: "male" | "female" | "other";
 }
 
 // Raw API calls
@@ -51,6 +52,7 @@ const authApi = {
       firstName: data.firstName,
       lastName: data.lastName,
       emailId: data.email,
+      gender: data.gender,
       password: data.password,
     }),
 

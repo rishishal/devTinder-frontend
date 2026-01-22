@@ -22,12 +22,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useApi } from "@/api";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  gender: z.enum(["male", "female", "other"]),
 });
 
 export const SignUp = () => {
@@ -42,6 +44,7 @@ export const SignUp = () => {
       lastName: "",
       email: "",
       password: "",
+      gender: "male",
     },
   });
 
@@ -52,6 +55,7 @@ export const SignUp = () => {
         lastName: values.lastName,
         email: values.email,
         password: values.password,
+        gender: values.gender,
       },
       {
         onSuccess: () => {
@@ -137,6 +141,42 @@ export const SignUp = () => {
                           type="password"
                           {...field}
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <FormControl className="flex">
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="male" id="male" />
+                            <FormLabel htmlFor="male" className="font-normal">
+                              Male
+                            </FormLabel>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="female" id="female" />
+                            <FormLabel htmlFor="female" className="font-normal">
+                              Female
+                            </FormLabel>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="other" id="other" />
+                            <FormLabel htmlFor="other" className="font-normal">
+                              Other
+                            </FormLabel>
+                          </div>
+                        </RadioGroup>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
