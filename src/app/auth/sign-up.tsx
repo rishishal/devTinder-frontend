@@ -20,7 +20,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useApi } from "@/api";
 
 const formSchema = z.object({
@@ -31,7 +31,7 @@ const formSchema = z.object({
 });
 
 export const SignUp = () => {
-  // Get signup hook from useApi
+  const navigate = useNavigate();
   const { useSignup } = useApi();
   const signupMutation = useSignup();
 
@@ -46,12 +46,19 @@ export const SignUp = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    signupMutation.mutate({
-      firstName: values.firstName,
-      lastName: values.lastName,
-      email: values.email,
-      password: values.password,
-    });
+    signupMutation.mutate(
+      {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onSuccess: () => {
+          navigate({ to: "/sign-in" });
+        },
+      },
+    );
   };
   return (
     <div className="w-full h-screen flex justify-center items-center">
@@ -150,7 +157,7 @@ export const SignUp = () => {
           </Button>
           <p className="text-xs">
             Already have an account?{" "}
-            <Link to="/authentication/sign-in">
+            <Link to="/sign-in">
               <span className="underline hover:text-blue-400">Sign In</span>
             </Link>
           </p>

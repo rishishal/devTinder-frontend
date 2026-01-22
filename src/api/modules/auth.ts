@@ -76,24 +76,14 @@ export function createAuthHooks() {
     },
 
     useLogin: () => {
-      const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: LoginData) => authApi.login(data),
-        onSuccess: (response) => {
-          setUser(response.data.data);
-          navigate({ to: "/" });
-        },
       });
     },
 
     useSignup: () => {
-      const navigate = useNavigate();
       return useMutation({
         mutationFn: (data: SignupData) => authApi.signup(data),
-        onSuccess: (response) => {
-          setUser(response.data.data);
-          navigate({ to: "/sign-in" });
-        },
       });
     },
 

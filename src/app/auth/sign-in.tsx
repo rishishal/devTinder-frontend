@@ -20,7 +20,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useApi } from "@/api";
 
 const formSchema = z.object({
@@ -29,9 +29,10 @@ const formSchema = z.object({
 });
 
 export const SignIn = () => {
-  // Get login hook from useApi (like your ERP pattern)
-  const { useLogin } = useApi();
+  const navigate = useNavigate();
+  const { useLogin, useFetchUser } = useApi();
   const loginMutation = useLogin();
+  const fetchUserMutation = useFetchUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,11 +43,16 @@ export const SignIn = () => {
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    // Use mutation.mutate() - navigation happens in onSuccess
-    loginMutation.mutate({
-      email: values.email,
-      password: values.password,
-    });
+    loginMutation.mutate(
+      { email: values.email, password: values.password },
+      {
+        onSuccess: () => {
+          fetchUserMutation.mutate(undefined, {
+            onSuccess: () => navigate({ to: "/" }),
+          });
+        },
+      },
+    );
   };
   return (
     <div className="w-full h-screen flex justify-center items-center">
@@ -117,7 +123,7 @@ export const SignIn = () => {
           </Button>
           <p className="text-xs">
             Dont have account?{" "}
-            <Link to="/authentication/sign-up">
+            <Link to="/sign-up">
               <span className="underline hover:text-blue-400">Sign Up</span>
             </Link>
           </p>
