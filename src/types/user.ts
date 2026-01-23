@@ -4,6 +4,7 @@ export interface User {
   lastName: string;
   emailId: string;
   bio: string;
+  avatar: string | null;
   age: number;
   skills: string[];
   gender?: "male" | "female" | "other";

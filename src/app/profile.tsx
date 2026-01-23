@@ -58,8 +58,14 @@ type FormValues = z.infer<typeof formSchema>;
 export const ProfilePage = () => {
   const { auth } = useAuthStore();
   const { user } = auth;
-  const { useUpdateProfile } = useApi();
+  const {
+    useUpdateProfile,
+    useUploadAvatar,
+    useUpdateAvatar,
+    useDeleteAvatar,
+  } = useApi();
   const updateProfileMutation = useUpdateProfile();
+  const uploadAvatarMutation = useUploadAvatar();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -75,6 +81,12 @@ export const ProfilePage = () => {
 
   const onSubmit = (data: FormValues) => {
     updateProfileMutation.mutate(data);
+  };
+
+  const handleAvatarChange = (_url: string | null, file: File | null) => {
+    if (file) {
+      uploadAvatarMutation.mutate(file);
+    }
   };
 
   if (!user) {
@@ -105,7 +117,8 @@ export const ProfilePage = () => {
           <CardContent className="flex justify-center">
             <ImageUploader
               fallbackText={user.firstName.charAt(0).toUpperCase()}
-              onImageChange={(url) => console.log("Image changed:", url)}
+              defaultImage={user.avatar || undefined}
+              onImageChange={handleAvatarChange}
             />
           </CardContent>
         </Card>

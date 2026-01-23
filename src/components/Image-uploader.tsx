@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ImageUploaderProps {
   defaultImage?: string;
-  onImageChange?: (url: string | null) => void;
+  onImageChange?: (url: string | null, file: File | null) => void;
   className?: string;
   fallbackText?: string;
 }
@@ -26,7 +26,7 @@ export function ImageUploader({
     handleFileChange,
     handleRemove,
   } = useImageUpload({
-    onUpload: (url) => onImageChange?.(url),
+    onUpload: (url, file) => onImageChange?.(url, file),
   });
 
   const [isDragging, setIsDragging] = useState(false);
@@ -69,7 +69,7 @@ export function ImageUploader({
 
   const handleRemoveImage = useCallback(() => {
     handleRemove();
-    onImageChange?.(null);
+    onImageChange?.(null, null);
   }, [handleRemove, onImageChange]);
 
   const currentImage = previewUrl || defaultImage;

@@ -29,7 +29,7 @@ export function ProfileAvatar() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
           <Avatar>
-            <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />
+            <AvatarImage src={user?.avatar ?? undefined} alt="User Avatar" />
             <AvatarFallback>
               {user?.firstName?.[0] ?? ""}
               {user?.lastName?.[0] ?? ""}
