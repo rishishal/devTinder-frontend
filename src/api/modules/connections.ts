@@ -1,35 +1,37 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "./auth";
 
 const connectionsApi = {
-  sendConnectionRequest: (userId: string) => {
-    return apiClient.post(`/connections/request/${userId}`);
+  sendConnectionRequest: (status: string, userId: string) => {
+    return apiClient.post(`/connection/send/${status}/${userId}`);
   },
-  respondToConnectionRequest: (userId: string, accept: boolean) => {
-    return apiClient.post(`/connections/respond/${userId}`, { accept });
-  },
-  getConnectionRequests: () => {
-    return apiClient.get("/connections/requests");
+  respondToConnectionRequest: (requestId: string, action: string) => {
+    return apiClient.post(`/connection/respond/${requestId}/${action}`);
   },
 };
 
 export function useConnectionsHooks() {
+  const queryClient = useQueryClient();
+
   return {
     useSendConnectionRequest: () => {
       return useMutation({
-        mutationFn: (userId: string) =>
-          connectionsApi.sendConnectionRequest(userId),
+        mutationFn: ({ status, userId }: { status: string; userId: string }) =>
+          connectionsApi.sendConnectionRequest(status, userId),
       });
     },
     useRespondToConnectionRequest: () => {
       return useMutation({
-        mutationFn: ({ userId, accept }: { userId: string; accept: boolean }) =>
-          connectionsApi.respondToConnectionRequest(userId, accept),
-      });
-    },
-    useGetConnectionRequests: () => {
-      return useMutation({
-        mutationFn: () => connectionsApi.getConnectionRequests(),
+        mutationFn: ({
+          requestId,
+          action,
+        }: {
+          requestId: string;
+          action: string;
+        }) => connectionsApi.respondToConnectionRequest(requestId, action),
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["receivedRequests"] });
+        },
       });
     },
   };

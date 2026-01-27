@@ -2,14 +2,43 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Mail, Mars, Venus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { User } from "@/types/user";
+import { useApi } from "@/api";
 
-interface RequestCardProps {
-  user: User;
-  onAccept: (userId: string) => void;
-  onReject: (userId: string) => void;
+interface ConnectionRequest {
+  _id: string;
+  sender: User;
+  receiver: string;
+  status: "interested" | "ignored" | "accepted" | "rejected";
+  createdAt: string;
+  updatedAt: string;
 }
 
-export const RequestCard = ({ user, onAccept, onReject }: RequestCardProps) => {
+interface RequestCardProps {
+  request: ConnectionRequest;
+}
+
+export const RequestCard = ({ request }: RequestCardProps) => {
+  const { useRespondToConnectionRequest } = useApi();
+  const respondMutation = useRespondToConnectionRequest();
+
+  const user = request.sender;
+
+  const handleAccept = (requestId: string) => {
+    respondMutation.mutate({
+      requestId,
+      action: "accepted",
+    });
+  };
+
+  const handleReject = (requestId: string) => {
+    respondMutation.mutate({
+      requestId,
+      action: "rejected",
+    });
+  };
+
+  console.log("RequestCard rendered for request:", request);
+
   return (
     <Card className="transition-all duration-200 hover:shadow-lg">
       <CardContent className="flex items-start gap-4 px-4 sm:px-6">
@@ -62,11 +91,11 @@ export const RequestCard = ({ user, onAccept, onReject }: RequestCardProps) => {
           <Button
             variant="ghost"
             className="border border-border/60 px-4 text-foreground hover:bg-muted"
-            onClick={() => onReject(user._id)}
+            onClick={() => handleReject(request._id)}
           >
             Ignore
           </Button>
-          <Button className="px-5" onClick={() => onAccept(user._id)}>
+          <Button className="px-5" onClick={() => handleAccept(request._id)}>
             Accept
           </Button>
         </div>

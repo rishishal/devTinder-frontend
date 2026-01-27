@@ -7,16 +7,6 @@ export const RequestPage = () => {
   const { useReceivedRequests } = useApi();
   const { data: requests, isLoading } = useReceivedRequests();
 
-  const handleAccept = (userId: string) => {
-    console.log("Accepted user:", userId);
-    // TODO: Implement accept logic
-  };
-
-  const handleReject = (userId: string) => {
-    console.log("Rejected user:", userId);
-    // TODO: Implement reject logic
-  };
-
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
@@ -43,12 +33,7 @@ export const RequestPage = () => {
       {requests && requests.length > 0 ? (
         <div className="space-y-4">
           {requests.map((request) => (
-            <RequestCard
-              key={request._id}
-              user={request.sender}
-              onAccept={handleAccept}
-              onReject={handleReject}
-            />
+            <RequestCard key={request._id} request={request} />
           ))}
         </div>
       ) : (
