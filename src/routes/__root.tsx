@@ -3,7 +3,7 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { useEffect, useState } from "react";
 
-import { Navbar } from "@/components/navBar";
+import { Navbar } from "@/components/header";
 import { type AuthState } from "@/stores/auth-store";
 import { useApi } from "@/api";
 

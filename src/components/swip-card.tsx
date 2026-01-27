@@ -16,7 +16,7 @@ const SwipeCards = () => {
           key={card.id}
           card={card}
           isTop={index === cards.length - 1}
-          onRemove={() => setCards(cards.filter(c => c.id !== card.id))}
+          onRemove={() => setCards(cards.filter((c) => c.id !== card.id))}
         />
       ))}
     </div>
@@ -34,9 +34,9 @@ const Card = ({ card, isTop, onRemove }: CardProps) => {
     return `${rotateRaw.get() + baseRotation}deg`;
   });
 
-  const handleDragEnd = (event: any, info: { offset: { x: number } }) => {
+  const handleDragEnd = (_event: any, info: { offset: { x: number } }) => {
     const swipeThreshold = 100;
-    
+
     if (Math.abs(info.offset.x) > swipeThreshold) {
       onRemove();
     } else {

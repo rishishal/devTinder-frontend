@@ -58,12 +58,7 @@ type FormValues = z.infer<typeof formSchema>;
 export const ProfilePage = () => {
   const { auth } = useAuthStore();
   const { user } = auth;
-  const {
-    useUpdateProfile,
-    useUploadAvatar,
-    useUpdateAvatar,
-    useDeleteAvatar,
-  } = useApi();
+  const { useUpdateProfile, useUploadAvatar } = useApi();
   const updateProfileMutation = useUpdateProfile();
   const uploadAvatarMutation = useUploadAvatar();
 

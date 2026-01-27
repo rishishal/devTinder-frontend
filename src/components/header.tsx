@@ -16,7 +16,7 @@ export const Navbar = () => {
 
       {auth.isAuthenticated ? (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Hello, </span>
+          <span className="text-sm text-gray-600">Hello</span>
           <ProfileAvatar />
         </div>
       ) : (

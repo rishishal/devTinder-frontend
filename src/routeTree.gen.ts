@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ForbiddenRouteImport } from './routes/forbidden'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedRequestRouteImport } from './routes/_authenticated/request'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedConnectionsRouteImport } from './routes/_authenticated/connections'
 import { Route as AuthSignUpIndexRouteImport } from './routes/_auth/sign-up/index'
 import { Route as AuthSignInIndexRouteImport } from './routes/_auth/sign-in/index'
 
@@ -30,11 +32,22 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRequestRoute = AuthenticatedRequestRouteImport.update({
+  id: '/_authenticated/request',
+  path: '/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/_authenticated/profile',
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedConnectionsRoute =
+  AuthenticatedConnectionsRouteImport.update({
+    id: '/_authenticated/connections',
+    path: '/connections',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthSignUpIndexRoute = AuthSignUpIndexRouteImport.update({
   id: '/sign-up/',
   path: '/sign-up/',
@@ -49,14 +62,18 @@ const AuthSignInIndexRoute = AuthSignInIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/forbidden': typeof ForbiddenRoute
+  '/connections': typeof AuthenticatedConnectionsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/request': typeof AuthenticatedRequestRoute
   '/sign-in/': typeof AuthSignInIndexRoute
   '/sign-up/': typeof AuthSignUpIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/forbidden': typeof ForbiddenRoute
+  '/connections': typeof AuthenticatedConnectionsRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/request': typeof AuthenticatedRequestRoute
   '/sign-in': typeof AuthSignInIndexRoute
   '/sign-up': typeof AuthSignUpIndexRoute
 }
@@ -64,21 +81,39 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_auth': typeof AuthRouteWithChildren
   '/forbidden': typeof ForbiddenRoute
+  '/_authenticated/connections': typeof AuthenticatedConnectionsRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/request': typeof AuthenticatedRequestRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_auth/sign-in/': typeof AuthSignInIndexRoute
   '/_auth/sign-up/': typeof AuthSignUpIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/forbidden' | '/profile' | '/sign-in/' | '/sign-up/'
+  fullPaths:
+    | '/'
+    | '/forbidden'
+    | '/connections'
+    | '/profile'
+    | '/request'
+    | '/sign-in/'
+    | '/sign-up/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/forbidden' | '/profile' | '/sign-in' | '/sign-up'
+  to:
+    | '/'
+    | '/forbidden'
+    | '/connections'
+    | '/profile'
+    | '/request'
+    | '/sign-in'
+    | '/sign-up'
   id:
     | '__root__'
     | '/_auth'
     | '/forbidden'
+    | '/_authenticated/connections'
     | '/_authenticated/profile'
+    | '/_authenticated/request'
     | '/_authenticated/'
     | '/_auth/sign-in/'
     | '/_auth/sign-up/'
@@ -87,7 +122,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthRoute: typeof AuthRouteWithChildren
   ForbiddenRoute: typeof ForbiddenRoute
+  AuthenticatedConnectionsRoute: typeof AuthenticatedConnectionsRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedRequestRoute: typeof AuthenticatedRequestRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
@@ -114,11 +151,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/request': {
+      id: '/_authenticated/request'
+      path: '/request'
+      fullPath: '/request'
+      preLoaderRoute: typeof AuthenticatedRequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/connections': {
+      id: '/_authenticated/connections'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof AuthenticatedConnectionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_auth/sign-up/': {
@@ -153,7 +204,9 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRouteWithChildren,
   ForbiddenRoute: ForbiddenRoute,
+  AuthenticatedConnectionsRoute: AuthenticatedConnectionsRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedRequestRoute: AuthenticatedRequestRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport

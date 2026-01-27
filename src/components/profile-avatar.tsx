@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Link } from "@tanstack/react-router";
-import { LogOutIcon, Settings, UserRound } from "lucide-react";
+import { Bell, LogOutIcon, Send, UserRound } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useApi } from "@/api";
 
@@ -40,14 +40,22 @@ export function ProfileAvatar() {
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuItem>
+            <Link to="/request" className="flex items-center gap-2">
+              <Bell />
+              Notification
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Link to="/connections" className="flex items-center gap-2">
+              <Send />
+              Messages
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
             <Link to="/profile" className="flex items-center gap-2">
               <UserRound />
               Profile
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings />
-            Settings
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
